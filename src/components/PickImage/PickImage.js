@@ -19,11 +19,12 @@ class PickImage extends Component {
              //   console.log("Error occured", res.error);
             } else {
                 this.setState({
-                    pickedImage: { uri: res.uri, base64: res.data}
+                    pickedImage: { uri: res.uri}
                 });
 
                 this.props.onImagePicked({
-                    uri: res.uri
+                    uri: res.uri,
+                    base64: res.data
                 })
             }
         });

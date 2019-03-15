@@ -20,7 +20,7 @@ class PickLocation extends Component {
         this.map.animateToRegion({
             ...this.state.focusedLocation,
             latitude: coordinate.latitude,
-            longitude: coordinate.longitude
+            longitude: coordinate.longitude,
         })
 
         this.setState( prevState => {

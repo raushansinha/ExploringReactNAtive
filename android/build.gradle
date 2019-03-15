@@ -35,6 +35,10 @@ allprojects {
     }
 }
 
+ext {
+    MOCKITO_CORE_VERSION = "2.13.0"
+}
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.7'

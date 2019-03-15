@@ -5,7 +5,7 @@ import {
     Button,
     StyleSheet,
     ScrollView,
-    Image
+    ActivityIndicator
 } from 'react-native';
 import { connect } from 'react-redux';
 
@@ -53,7 +53,7 @@ class SharePlaceScreen extends Component {
     }
 
     navigatorEventHandler = event => {
-      //  console.log(event);
+        //  console.log(event);
         if (event.type === "NavBarButtonPress") {
             if (event.id === "sideDrawerToggle") {
                 this.props.navigator.toggleDrawer({
@@ -85,8 +85,8 @@ class SharePlaceScreen extends Component {
     placeAddedHandler = () => {
         //if (this.state.controls.placeName.value.trim() !== "") {
         this.props.onAddPlace(
-            this.state.controls.placeName.value, 
-            this.state.controls.location.value, 
+            this.state.controls.placeName.value,
+            this.state.controls.location.value,
             this.state.controls.image.value);
         //}
     }
@@ -120,13 +120,31 @@ class SharePlaceScreen extends Component {
     }
 
     render() {
+        submitButton = (
+            <Button
+                title="Share the place!"
+                color={
+                    this.state.controls.placeName.valid
+                        && this.state.controls.location.valid
+                        && this.state.controls.image.valid ? "#841584" : "#aaa"}
+                onPress={this.placeAddedHandler}
+                disabled={!this.state.controls.placeName.valid
+                    || !this.state.controls.location.valid
+                    || !this.state.controls.image.valid}
+            />
+        );
+
+        if (this.props.isLoading) {
+            submitButton = <ActivityIndicator />
+        }
+
         return (
             <ScrollView>
                 <View style={styles.container}>
                     <MainText>
                         <HeadingText>Share a place with us!</HeadingText>
                     </MainText>
-                    <PickImage onImagePicked = {this.pickImageHandler}/>
+                    <PickImage onImagePicked={this.pickImageHandler} />
                     <PickLocation onLocationPick={this.locationPickedHandler} />
                     <PlaceInput
                         placeData={this.state.controls.placeName}
@@ -134,17 +152,7 @@ class SharePlaceScreen extends Component {
                     />
 
                     <View style={styles.button}>
-                        <Button
-                            title="Share the place!"
-                            color={
-                                this.state.controls.placeName.valid 
-                                && this.state.controls.location.valid 
-                                && this.state.controls.image.valid? "#841584" : "#aaa"}
-                            onPress={this.placeAddedHandler}
-                            disabled={!this.state.controls.placeName.valid 
-                                || !this.state.controls.location.valid
-                                || !this.state.controls.image.valid}
-                        />
+                        {submitButton}
                     </View>
 
                 </View>
@@ -178,12 +186,17 @@ const styles = StyleSheet.create({
     }
 });
 
+
+const mapStateToProps = state => {
+    return {
+        isLoading: state.ui.isLoading
+    };
+}
+
 const mapDispatchToProps = dispatch => {
     return {
         onAddPlace: (name, location, image) => dispatch(addPlace(name, location, image)),
     };
 };
 
-
-
-export default connect(null, mapDispatchToProps)(SharePlaceScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(SharePlaceScreen);

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { connect } from 'react-redux';
 
 import PlaceList from '../../components/PlaceList/PlaceList';
+import { getPlaces} from '../../store/actions/index';
 
 class FindPlaceScreen extends Component {
 
@@ -20,6 +21,10 @@ class FindPlaceScreen extends Component {
         super(props);
 
         this.props.navigator.setOnNavigatorEvent(this.navigatorEventHandler);
+    }
+
+    componentDidMount() {
+        this.props.onLoadPlaces();
     }
 
     navigatorEventHandler = event => {
@@ -134,6 +139,7 @@ const styles = StyleSheet.create({
         fontSize: 26
     }
 });
+
 const mapStateToProps = state => {
     return {
         places: state.places.places,
@@ -141,4 +147,10 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps, null)(FindPlaceScreen);
+const mapDispatchToProps = dispatch => {
+    return {
+        onLoadPlaces: () => dispatch(getPlaces())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FindPlaceScreen);
