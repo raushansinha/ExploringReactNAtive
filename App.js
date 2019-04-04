@@ -40,10 +40,12 @@ Navigation.registerComponent(
 
 Navigation.registerComponent(
   "navigation-in-react-native.SideDrawerScreen",
-  () => SideDrawerScreen);
+  () => SideDrawerScreen,
+  store,
+  Provider);
 
 //Start a App
-Navigation.startSingleScreenApp({
+export default () => Navigation.startSingleScreenApp({
   screen: {
     screen: "navigation-in-react-native.AuthScreen",
     title: "Login"

@@ -19,10 +19,10 @@
 // );
 
 // AppRegistry.registerComponent(appName, () => ReactNativeRedux);
-
+//set adb path export PATH=$PATH:~/Library/Android/sdk/platform-tools/
 
 //import {AppRegistry} from 'react-native';
 import App from './App';
 
-
+App();
 //AppRegistry.registerComponent(appName, () => App);
