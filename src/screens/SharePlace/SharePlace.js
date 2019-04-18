@@ -15,8 +15,9 @@ import HeadingText from '../../components/UI/HeadingText/HeadingText';
 import PickImage from '../../components/PickImage/PickImage';
 import PickLocation from '../../components/PickLocation/PickLocation';
 
-import { addPlace } from '../../store/actions/index';
+import { addPlace, placeAdded } from '../../store/actions/index';
 import Validate from '../../utility/validation/validation';
+import { startAddPlace } from '../../store/actions/index';
 
 
 class SharePlaceScreen extends Component {
@@ -25,31 +26,52 @@ class SharePlaceScreen extends Component {
         navBarButtonColor: "orange"
     }
 
-    state = {
-        controls: {
-            placeName: {
-                value: "",
-                valid: false,
-                validationRules: {
-                    notEmpty: true
-                },
-                touched: false
-            },
-            location: {
-                value: null,
-                valid: false
-            },
-            image: {
-                value: null,
-                valid: true
-            }
-        }
-    };
-
     constructor(props) {
         super(props);
 
         this.props.navigator.setOnNavigatorEvent(this.navigatorEventHandler);
+    }
+
+    componentWillMount() {
+        this.reset();
+    }
+
+    reset = () => {
+        this.setState({
+            controls: {
+                placeName: {
+                    value: "",
+                    valid: false,
+                    validationRules: {
+                        notEmpty: true
+                    },
+                    touched: false
+                },
+                location: {
+                    value: null,
+                    valid: false
+                },
+                image: {
+                    value: null,
+                    valid: true
+                }
+            }
+        });
+    }
+
+    componentDidUpdate() {
+        if(this.props.placeAdded) {
+            this.props.navigator.switchToTab({tabIndex: 0});
+            //this.props.onStartAddPlace();
+        }
+    }
+
+    onNavigatorEvent = event => {
+        if(event.type === "ScreenChangedEvent") {
+            if(event.id === "willAppear") {
+                this.props.onStartAddPlace();
+            }
+        }
     }
 
     navigatorEventHandler = event => {
@@ -87,8 +109,14 @@ class SharePlaceScreen extends Component {
         this.props.onAddPlace(
             this.state.controls.placeName.value,
             this.state.controls.location.value,
-            this.state.controls.image.value);
+            this.state.controls.image.value
+        );
         //}
+        this.reset();
+        this.imagePicker.reset();
+        this.locationPicker.reset();
+
+        //this.props.navigator.switchToTab({tabIndex : 0});
     }
 
     locationPickedHandler = (location) => {
@@ -144,8 +172,14 @@ class SharePlaceScreen extends Component {
                     <MainText>
                         <HeadingText>Share a place with us!</HeadingText>
                     </MainText>
-                    <PickImage onImagePicked={this.pickImageHandler} />
-                    <PickLocation onLocationPick={this.locationPickedHandler} />
+                    <PickImage 
+                        onImagePicked={this.pickImageHandler} 
+                        ref={ ref => this.imagePicker = ref} 
+                    />
+                    <PickLocation 
+                        onLocationPick={this.locationPickedHandler} 
+                        ref={ref => this.locationPicker = ref}
+                    />
                     <PlaceInput
                         placeData={this.state.controls.placeName}
                         onChangeText={(val) => this.updateInputState('placeName', val)}
@@ -189,13 +223,15 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
     return {
-        isLoading: state.ui.isLoading
+        isLoading: state.ui.isLoading,
+        placeAdded: state.places.placeAdded
     };
 }
 
 const mapDispatchToProps = dispatch => {
     return {
         onAddPlace: (name, location, image) => dispatch(addPlace(name, location, image)),
+        onStartAddPlace: () => dispatch(startAddPlace()),
     };
 };
 

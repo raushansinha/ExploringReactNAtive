@@ -1,4 +1,4 @@
-import { SET_PLACES, REMOVE_PLACE } from './actionTypes';
+import { SET_PLACES, REMOVE_PLACE, PLACE_ADDED, START_ADD_PLACE } from './actionTypes';
 import { uiStartLoading, uiStopLoading, getAuthToken } from './index';
 
 export const addPlace = (placeName, location, image) => {
@@ -26,23 +26,36 @@ export const addPlace = (placeName, location, image) => {
                 alert("Smothing went wrong, please try again!");
                 dispatch(uiStopLoading());
             })
-            .then(resp => resp.json())
+            .then(resp => {
+                if(resp.ok) {
+                    return resp.json();
+                } else {
+                    throw(new Error());
+                }
+            })
             .then(parsedResp => {
                 const placeData = {
                     name: placeName,
                     location: location,
-                    image: parsedResp.imageUrl
+                    image: parsedResp.imageUrl,
+                    imagePath: parsedResp.imagePath
                 };
 
                 return fetch("https://exploring-react-native.firebaseio.com/places.json?auth=" + token, {
                     method: "POST",
                     body: JSON.stringify(placeData)
                 })
-            
-                .then(resp => resp.json())
+                .then(resp => {
+                    if(resp.ok) {
+                        return resp.json();
+                    } else {
+                        throw(new Error());
+                    }
+                })
                 .then(parsedResp => {
                     console.log(parsedResp);
                     dispatch(uiStopLoading());
+                    dispatch(placeAdded());
                 })
                 .catch(err => {
                     console.log("Error: " + err);
@@ -51,6 +64,12 @@ export const addPlace = (placeName, location, image) => {
                 });
             });
         });
+    };
+};
+
+export const startAddPlace = () => {
+    return {
+        type: START_ADD_PLACE
     };
 };
 
@@ -65,7 +84,13 @@ export const getPlaces = () => {
                 console.log("Error: " + err);
                 alert("Not authenticated, please try again!");
             })
-        .then(resp => resp.json())
+        .then(resp => {
+            if(resp.ok) {
+                return resp.json();
+            } else {
+                throw(new Error());
+            }
+        })
         .then(parsedResp => {
             const places = [];
             for(let key in parsedResp) {
@@ -85,6 +110,13 @@ export const getPlaces = () => {
         });
     }
 }
+
+export const placeAdded = () => {
+    return {
+        type: PLACE_ADDED
+    };
+};
+
 
 export const setPlaces = places => {
     return {

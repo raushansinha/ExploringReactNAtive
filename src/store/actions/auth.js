@@ -46,8 +46,8 @@ export const tryAuth = (authData, authMode) => {
 
 export const authStoreToken = (token, expiresIn, refreshToken) => {
     return dispatch => {
-        const expiryDate = now.getTime() + expiresIn * 1000;
         const now = new Date();
+        const expiryDate = now.getTime() + expiresIn * 1000;
         dispatch(setAuthToken(token, expiryDate));
         AsyncStorage.setItem("ern:auth:token", token);
         AsyncStorage.setItem("ern:auth:expiryDate", expiryDate.toString());
@@ -109,7 +109,13 @@ export const getAuthToken = () => {
                         body: "grant_type=refresh_token&refresh_token" + refreshToken
                     });
                 })
-                .then(resp => resp.json())
+                .then(resp => {
+                    if(resp.ok) {
+                        return resp.json();
+                    } else {
+                        throw(new Error());
+                    }
+                })
                 .then(parsedResp => {
                     console.log("Refresh token worked!!!");
                     if (!parsedResp.id_token) {
